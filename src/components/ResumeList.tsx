@@ -1,3 +1,5 @@
+'use client'
+
 import { useState, useEffect } from 'react'
 import { DocumentIcon, PencilIcon } from '@heroicons/react/24/outline'
 import TailorResumeModal from './TailorResumeModal'
