@@ -19,6 +19,11 @@ const nextConfig = {
   experimental: {
     disablePostcssPresetEnv: false,
   },
+  runtime: 'nodejs',
+  output: 'standalone',
+  experimental: {
+    serverComponentsExternalPackages: ['@clerk/nextjs'],
+  },
 };
 
 module.exports = nextConfig; 
