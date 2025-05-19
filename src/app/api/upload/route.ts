@@ -3,6 +3,8 @@ import { auth } from '@clerk/nextjs'
 import prisma from '@/lib/prisma'
 import cloudinary from '@/lib/cloudinary'
 
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: Request) {
   try {
     const { userId } = auth()

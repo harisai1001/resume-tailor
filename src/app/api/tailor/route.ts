@@ -15,6 +15,8 @@ if (process.env.OPENAI_API_KEY) {
   })
 }
 
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: Request) {
   try {
     const { userId } = auth()

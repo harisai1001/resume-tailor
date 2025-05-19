@@ -16,6 +16,9 @@ const nextConfig = {
     };
     return config;
   },
+  experimental: {
+    disablePostcssPresetEnv: false,
+  },
 };
 
 module.exports = nextConfig; 
