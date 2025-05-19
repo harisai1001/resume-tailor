@@ -15,8 +15,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body className={inter.className} style={{ minHeight: '100vh', background: 'var(--background)' }}>
+    <html lang="en" suppressHydrationWarning>
+      <body className={inter.className} style={{ minHeight: '100vh', background: 'var(--background)' }} suppressHydrationWarning>
         <ClerkProvider
           appearance={{
             baseTheme: undefined,
@@ -26,6 +26,7 @@ export default function RootLayout({
               colorText: 'var(--foreground)',
             },
           }}
+          publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
         >
           <main>
             {children}

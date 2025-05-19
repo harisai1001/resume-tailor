@@ -21,6 +21,12 @@ const nextConfig = {
   },
   // Disable static optimization for pages that use dynamic features
   output: 'standalone',
+  // Configure runtime
+  runtime: 'nodejs',
+  // Disable static page generation for dynamic routes
+  unstable_runtimeJS: true,
+  // Configure page extensions
+  pageExtensions: ['js', 'jsx', 'ts', 'tsx'],
 };
 
 module.exports = nextConfig; 
