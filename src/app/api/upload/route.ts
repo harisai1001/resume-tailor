@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs'
 import { PrismaClient } from '@prisma/client'
-import { writeFile, mkdir } from 'fs/promises'
-import path from 'path'
+import cloudinary from '@/lib/cloudinary'
 
 const prisma = new PrismaClient()
 
@@ -25,25 +24,25 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Please upload a DOCX file' }, { status: 400 })
     }
 
-    // Create uploads directory if it doesn't exist
-    const uploadsDir = path.join(process.cwd(), 'public', 'uploads')
-    await mkdir(uploadsDir, { recursive: true })
-
-    // Generate unique filename
-    const uniqueFilename = `${userId}-${Date.now()}-${file.name}`
-    const filePath = path.join(uploadsDir, uniqueFilename)
-    
-    // Save file to disk
+    // Convert file to base64
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
-    await writeFile(filePath, buffer)
+    const base64File = buffer.toString('base64')
+    const dataURI = `data:${file.type};base64,${base64File}`
+
+    // Upload to Cloudinary
+    const result = await cloudinary.uploader.upload(dataURI, {
+      resource_type: 'raw',
+      folder: 'resume-tailor',
+      public_id: `${userId}-${Date.now()}-${file.name}`,
+    })
 
     // Save to database
     const resume = await prisma.resume.create({
       data: {
         userId,
         name: file.name,
-        originalFile: `/uploads/${uniqueFilename}`,
+        originalFile: result.secure_url,
       },
     })
 

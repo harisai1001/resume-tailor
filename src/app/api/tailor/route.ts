@@ -1,11 +1,10 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs'
 import { PrismaClient } from '@prisma/client'
-import { readFile, writeFile } from 'fs/promises'
-import path from 'path'
-import OpenAI from 'openai'
-import mammoth from 'mammoth'
 import { Document, Paragraph, TextRun, Packer } from 'docx'
+import mammoth from 'mammoth'
+import OpenAI from 'openai'
+import cloudinary from '@/lib/cloudinary'
 
 const prisma = new PrismaClient()
 const openai = new OpenAI({
@@ -31,10 +30,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Resume not found' }, { status: 404 })
     }
 
+    // Download the file from Cloudinary
+    const response = await fetch(resume.originalFile)
+    const docxBuffer = await response.arrayBuffer()
+    
     // Extract text from DOCX
-    const docxPath = path.join(process.cwd(), 'public', resume.originalFile)
-    const docxBuffer = await readFile(docxPath)
-    const { value: resumeText } = await mammoth.extractRawText({ buffer: docxBuffer })
+    const { value: resumeText } = await mammoth.extractRawText({ buffer: Buffer.from(docxBuffer) })
 
     // Use OpenAI to analyze and generate improvements
     const completion = await openai.chat.completions.create({
@@ -61,19 +62,6 @@ Format your response as JSON with the following structure:
     })
 
     const improvements = JSON.parse(completion.choices[0].message.content)
-
-    // Create a new tailored resume
-    const tailoredResume = await prisma.tailoredResume.create({
-      data: {
-        userId,
-        resumeId,
-        jobDescription,
-        enhancedSummary: improvements.enhancedSummary,
-        addedSkills: improvements.addedSkills,
-        newBulletPoints: improvements.newBulletPoints,
-        tailoredFile: resume.originalFile.replace('.docx', '-tailored.docx')
-      }
-    })
 
     // Generate the tailored DOCX
     const doc = new Document({
@@ -122,7 +110,7 @@ Format your response as JSON with the following structure:
               ],
             }),
             ...improvements.newBulletPoints.map(
-              (bullet) =>
+              (bullet: string) =>
                 new Paragraph({
                   bullet: {
                     level: 0,
@@ -135,14 +123,31 @@ Format your response as JSON with the following structure:
       ],
     })
 
-    const tailoredDocxPath = path.join(
-      process.cwd(),
-      'public',
-      tailoredResume.tailoredFile
-    )
-    
+    // Convert to buffer
     const buffer = await Packer.toBuffer(doc)
-    await writeFile(tailoredDocxPath, buffer)
+    
+    // Upload tailored version to Cloudinary
+    const base64File = buffer.toString('base64')
+    const dataURI = `data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,${base64File}`
+    
+    const uploadResult = await cloudinary.uploader.upload(dataURI, {
+      resource_type: 'raw',
+      folder: 'resume-tailor',
+      public_id: `${userId}-${Date.now()}-tailored-${resume.name}`,
+    })
+
+    // Create a new tailored resume
+    const tailoredResume = await prisma.tailoredResume.create({
+      data: {
+        userId,
+        resumeId,
+        jobDescription,
+        enhancedSummary: improvements.enhancedSummary,
+        addedSkills: improvements.addedSkills,
+        newBulletPoints: improvements.newBulletPoints,
+        tailoredFile: uploadResult.secure_url
+      }
+    })
 
     return NextResponse.json(tailoredResume)
   } catch (error) {
