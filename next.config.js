@@ -17,13 +17,10 @@ const nextConfig = {
     return config;
   },
   experimental: {
-    disablePostcssPresetEnv: false,
-  },
-  runtime: 'nodejs',
-  output: 'standalone',
-  experimental: {
     serverComponentsExternalPackages: ['@clerk/nextjs'],
   },
+  // Disable static optimization for pages that use dynamic features
+  output: 'standalone',
 };
 
 module.exports = nextConfig; 

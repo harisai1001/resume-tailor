@@ -15,14 +15,23 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <ClerkProvider>
-      <html lang="en">
-        <body className={inter.className} style={{ minHeight: '100vh', background: 'var(--background)' }}>
+    <html lang="en">
+      <body className={inter.className} style={{ minHeight: '100vh', background: 'var(--background)' }}>
+        <ClerkProvider
+          appearance={{
+            baseTheme: undefined,
+            variables: {
+              colorPrimary: 'var(--primary)',
+              colorBackground: 'var(--background)',
+              colorText: 'var(--foreground)',
+            },
+          }}
+        >
           <main>
             {children}
           </main>
-        </body>
-      </html>
-    </ClerkProvider>
+        </ClerkProvider>
+      </body>
+    </html>
   )
 }
