@@ -1,15 +1,19 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs'
-import { PrismaClient } from '@prisma/client'
-import { Document, Paragraph, TextRun, Packer } from 'docx'
+import prisma from '@/lib/prisma'
+import * as docx from 'docx'
 import mammoth from 'mammoth'
 import OpenAI from 'openai'
 import cloudinary from '@/lib/cloudinary'
 
-const prisma = new PrismaClient()
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-})
+const { Document, Paragraph, TextRun, Packer } = docx
+
+let openai: OpenAI | undefined
+if (process.env.OPENAI_API_KEY) {
+  openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY
+  })
+}
 
 export async function POST(request: Request) {
   try {
@@ -17,6 +21,10 @@ export async function POST(request: Request) {
     
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    if (!openai) {
+      return NextResponse.json({ error: 'OpenAI API key not configured' }, { status: 500 })
     }
 
     const { resumeId, jobDescription } = await request.json()
@@ -60,6 +68,10 @@ Format your response as JSON with the following structure:
         }
       ]
     })
+
+    if (!completion.choices[0].message.content) {
+      throw new Error('No completion content received from OpenAI')
+    }
 
     const improvements = JSON.parse(completion.choices[0].message.content)
 

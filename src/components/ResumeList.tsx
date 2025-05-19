@@ -31,7 +31,7 @@ export default function ResumeList() {
 
   if (resumes.length === 0) {
     return (
-      <div className="text-center py-6 text-gray-500">
+      <div style={{ textAlign: 'center', padding: '1.5rem', color: '#6b7280' }}>
         No resumes uploaded yet. Upload your first resume above!
       </div>
     )
@@ -39,32 +39,31 @@ export default function ResumeList() {
 
   return (
     <>
-      <div className="grid gap-4 sm:grid-cols-2">
-        {resumes.map((resume) => (
-          <div
-            key={resume.id}
-            className="relative rounded-lg border border-gray-200 p-4 hover:border-gray-300"
-          >
-            <div className="flex items-start justify-between">
-              <div className="flex items-center space-x-3">
-                <DocumentIcon className="h-6 w-6 text-gray-400" />
-                <div>
-                  <h3 className="text-sm font-medium text-gray-900">{resume.name}</h3>
-                  <p className="text-xs text-gray-500">
-                    Uploaded on {new Date(resume.createdAt).toLocaleDateString()}
-                  </p>
+      <div className="container">
+        <div className="flex flex-col gap-4">
+          {resumes.map((resume) => (
+            <div key={resume.id} className="card">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <DocumentIcon style={{ width: '1.5rem', height: '1.5rem', color: '#9ca3af' }} />
+                  <div>
+                    <h3 style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--gray-900)' }}>{resume.name}</h3>
+                    <p style={{ fontSize: '0.75rem', color: 'var(--gray-500)' }}>
+                      Uploaded on {new Date(resume.createdAt).toLocaleDateString()}
+                    </p>
+                  </div>
                 </div>
+                <button
+                  onClick={() => handleTailor(resume)}
+                  className="btn btn-primary"
+                >
+                  <PencilIcon style={{ width: '1rem', height: '1rem', marginRight: '0.25rem' }} />
+                  Tailor
+                </button>
               </div>
-              <button
-                onClick={() => handleTailor(resume)}
-                className="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-              >
-                <PencilIcon className="h-4 w-4" />
-                <span className="sr-only">Tailor resume</span>
-              </button>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
       {selectedResume && (

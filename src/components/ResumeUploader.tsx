@@ -50,22 +50,17 @@ export default function ResumeUploader() {
   return (
     <div
       {...getRootProps()}
-      className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer
-        ${isDragActive ? 'border-indigo-600 bg-indigo-50' : 'border-gray-300 hover:border-indigo-400'}
-        ${uploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+      className={`card flex flex-col items-center ${isDragActive ? 'border-primary' : ''} ${uploading ? 'opacity-50' : ''}`}
+      style={{ cursor: uploading ? 'not-allowed' : 'pointer' }}
     >
       <input {...getInputProps()} disabled={uploading} />
-      <CloudArrowUpIcon className="mx-auto h-12 w-12 text-gray-400" />
-      <p className="mt-2 text-sm font-semibold text-gray-900">
-        {isDragActive ? (
-          "Drop your resume here..."
-        ) : (
-          "Drag 'n' drop your resume, or click to select"
-        )}
+      <CloudArrowUpIcon style={{ width: '3rem', height: '3rem', color: '#9ca3af' }} />
+      <p className="mt-2 text-gray-900" style={{ fontWeight: 600 }}>
+        {isDragActive ? "Drop your resume here..." : "Drag 'n' drop your resume, or click to select"}
       </p>
-      <p className="mt-1 text-xs text-gray-500">Word document (DOCX) only</p>
+      <p className="mt-1" style={{ fontSize: '0.875rem', color: '#6b7280' }}>Word document (DOCX) only</p>
       {uploading && (
-        <p className="mt-2 text-sm text-indigo-600">Uploading...</p>
+        <p className="mt-2" style={{ fontSize: '0.875rem', color: '#4f46e5' }}>Uploading...</p>
       )}
     </div>
   )

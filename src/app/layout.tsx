@@ -17,8 +17,8 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en">
-        <body className={inter.className}>
-          <main className="min-h-screen bg-gray-50">
+        <body className={inter.className} style={{ minHeight: '100vh', background: 'var(--background)' }}>
+          <main>
             {children}
           </main>
         </body>
